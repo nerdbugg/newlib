@@ -1,9 +1,9 @@
-#define START	"main"
+#define START "main"
 
 __asm__(
 ".section .sdata,\"aw\"\n"
 ".text\n"
-".global " START "_asm\n"
+".global _start\n"
 ".type " START "_asm,%function\n"
 START "_asm:\n"
 ".weak __global_pointer$\n"
@@ -17,6 +17,7 @@ START "_asm:\n"
 ".hidden _DYNAMIC\n\t"
 "lla a1, _DYNAMIC\n\t"
 "andi sp, sp, -16\n\t"
-"tail " START "_c"
+"call " START "\n\t"
+"tail _exit"
 );
 
