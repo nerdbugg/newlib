@@ -434,6 +434,9 @@ case "${host}" in
 	stdio64_dir=stdio64
 	xdr_dir=xdr
 	;;
+  *-*-carrier*)
+  	sys_dir=carrier
+  	;;
   *-*-netware*)
 	signal_dir=
 	sys_dir=netware
@@ -644,6 +647,9 @@ case "${host}" in
 	newlib_cflags="${newlib_cflags} -DHAVE_OPENDIR -DHAVE_RENAME -DGETREENT_PROVIDED -DSIGNAL_PROVIDED -D_COMPILING_NEWLIB -DHAVE_BLKSIZE -DHAVE_FCNTL -DMALLOC_PROVIDED"
 	syscall_dir=syscalls
 	;;
+  *-*-carrier)
+  newlib_cflags="${newlib_cflags} -D_FORTIFY_SOURCE=0 -DNO_FLOATING_POINT -fno-stack-protector "
+  ;;
   *-*-phoenix*)
 	newlib_cflags="${newlib_cflags} -DMISSING_SYSCALL_NAMES -D_COMPILING_NEWLIB -DHAVE_BLKSIZE -DHAVE_NANOSLEEP"
 	default_newlib_io_long_long="yes"
