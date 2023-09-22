@@ -4,26 +4,26 @@
 #define __SYSLIST_H
 
 #ifdef MISSING_SYSCALL_NAMES
-#define _close close
-#define _execve execve
-#define _fcntl fcntl
-#define _fork fork
-#define _fstat fstat
-#define _getpid getpid
-#define _gettimeofday gettimeofday
-#define _isatty isatty
-#define _kill kill
-#define _link link
-#define _lseek lseek
-#define _mkdir mkdir
-#define _open open
-#define _read read
-#define _sbrk sbrk
-#define _stat stat
-#define _times times
-#define _unlink unlink
-#define _wait wait
-#define _write write
+// #define _close close
+// #define _execve execve
+// #define _fcntl fcntl
+// #define _fork fork
+// #define _fstat fstat
+// #define _getpid getpid
+// #define _gettimeofday gettimeofday
+// #define _isatty isatty
+// #define _kill kill
+// #define _link link
+// #define _lseek lseek
+// #define _mkdir mkdir
+// #define _open open
+// #define _read read
+// #define _sbrk sbrk
+// #define _stat stat
+// #define _times times
+// #define _unlink unlink
+// #define _wait wait
+// #define _write write
 #endif /* MISSING_SYSCALL_NAMES */
 
 #if defined MISSING_SYSCALL_NAMES || !defined HAVE_OPENDIR
