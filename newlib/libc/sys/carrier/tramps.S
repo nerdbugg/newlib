@@ -1,3 +1,14 @@
+#define COMP_DDC (16*2)
+#define HC_PCC (16*3)
+#define MON_DDC (16*4)
+//5--6
+#define RA  (16*7)
+#define RET_COMP_PPC (16*11)
+#define RET_COMP_DDC (16*12)
+
+#define CAPF (16*10)
+//#define SIM 1
+//
 .text
 
  // unsigned long c_out_3(unsigned long a0, unsigned long a1, unsigned long a2,

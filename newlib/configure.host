@@ -435,8 +435,8 @@ case "${host}" in
 	xdr_dir=xdr
 	;;
   *-*-carrier*)
-  	sys_dir=carrier
-  	;;
+  sys_dir=carrier
+  ;;
   *-*-netware*)
 	signal_dir=
 	sys_dir=netware
@@ -648,7 +648,7 @@ case "${host}" in
 	syscall_dir=syscalls
 	;;
   *-*-carrier)
-  newlib_cflags="${newlib_cflags} -D_FORTIFY_SOURCE=0 -DNO_FLOATING_POINT -fno-stack-protector "
+  newlib_cflags="${newlib_cflags} -D_FORTIFY_SOURCE=0 -DNO_FLOATING_POINT -fno-stack-protector"
   ;;
   *-*-phoenix*)
 	newlib_cflags="${newlib_cflags} -DMISSING_SYSCALL_NAMES -D_COMPILING_NEWLIB -DHAVE_BLKSIZE -DHAVE_NANOSLEEP"

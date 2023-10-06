@@ -7,9 +7,13 @@
 #include <sys/errno.h>
 #include <sys/time.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <errno.h>
 
 extern int errno;
+
+/* Register name faking - works in collusion with the linker.  */
+register char * stack_ptr asm ("sp");
 
 // note: used in trampoline code to issue hostcall
 // in hybrid mode, the real address is computed relative to ddc
@@ -85,6 +89,16 @@ enum HC_NUM {
   FCNTL = 814,
 };
 
+long __syscall_ret(long r) {
+  if(r<0) {
+    errno = -r;
+    return -1;
+  }
+
+  errno = 0;
+  return r;
+}
+
 void _exit() {
   __hostcall(EXIT, 0, 0, 0);
 }
@@ -133,13 +147,28 @@ int lseek(int file, int ptr, int dir) {
   return 0;
 }
 
-int open(const char *name, int flags, int mode) {
-  return __hostcall(OPEN, (unsigned long)name, flags, mode);
+int open(const char *name, int flags, ...) {
+  mode_t mode = 0;
+
+  if((flags & O_CREAT)) {
+    va_list ap;
+    va_start(ap, flags);
+    mode = va_arg(ap, mode_t);
+    va_end(ap);
+  }
+
+  int fd = __hostcall(OPEN, (unsigned long)name, flags, mode);
+
+  return __syscall_ret(fd);
 }
 
 int read(int file, char *ptr, int len) {
   return __hostcall(READ, file, (unsigned long)ptr, len);
   return 0;
+}
+
+int write(int file, char *ptr, int len) {
+  return __hostcall(WRITE, file, (unsigned long)ptr, len);
 }
 
 caddr_t sbrk(int incr) {
@@ -153,19 +182,19 @@ caddr_t sbrk(int incr) {
   prev_heap_end = heap_end;
   if (heap_end + incr > stack_ptr) {
     write (1, "Heap and stack collision\n", 25);
-    abort ();
+    _exit();
   }
 
   heap_end += incr;
   return (caddr_t) prev_heap_end;
 }
 
-int stat(char *file, struct stat *st) {
-  st->st_mode = S_IFCHR;
+int stat(const char *__restrict __path, struct stat *__restrict __sbuf) {
+  __sbuf->st_mode = S_IFCHR;
   return 0;
 }
 
-int times(struct tms *buf) {
+clock_t times(struct tms *buf) {
   return -1;
 }
 
@@ -178,9 +207,4 @@ int wait(int *status) {
   errno = ECHILD;
   return -1;
 }
-
-int write(int file, char *ptr, int len) {
-  return __hostcall(WRITE, file, (unsigned long)ptr, len);
-}
-
 
