@@ -1,6 +1,8 @@
 #ifndef __WARNING_H__
 #define __WARNING_H__
 
+#undef HAVE_GNU_LD
+
 #ifdef HAVE_GNU_LD
 # ifdef HAVE_ELF
 
