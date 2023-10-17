@@ -790,6 +790,7 @@ ac_subdirs_all='a29khif
 amdgcn
 arm
 d10v
+carrier
 decstation
 epiphany
 h8300hms
@@ -11475,7 +11476,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11478 "configure"
+#line 11479 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11581,7 +11582,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 11584 "configure"
+#line 11585 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11831,6 +11832,8 @@ subdirs="$subdirs a29khif"
 	arm) subdirs="$subdirs arm"
  ;;
 	d10v) subdirs="$subdirs d10v"
+ ;;
+  carrier) subdirs="$subdirs carrier"
  ;;
 	decstation) subdirs="$subdirs decstation"
  ;;
