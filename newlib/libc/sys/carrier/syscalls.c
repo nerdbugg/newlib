@@ -29,7 +29,7 @@ extern unsigned long c_out_3(unsigned long call_num, unsigned long arg1, unsigne
 extern unsigned long ret_from_monitor();
 extern void copy_from_cap(void *dst, void *src_cap_location, int len);
 
-inline unsigned long __hostcall(unsigned long call_num, unsigned long arg1, unsigned long arg2, 
+unsigned long __hostcall(unsigned long call_num, unsigned long arg1, unsigned long arg2, 
 				unsigned long arg3) {
   return c_out_3(call_num, arg1, arg2, arg3);
 }

@@ -54,7 +54,7 @@ c_out:
 		sd	s0,  (8*8)(sp)
 
 tt:
-		// local_cap_store = the addr of global variable local_cap_store (in hostcalls.h) ;
+		// local_cap_store = the addr of global variable local_cap_store;
 		auipc	t0, %pcrel_hi(local_cap_store)    // R_RISCV_PCREL_HI20
 		addi       t0, t0, %pcrel_lo(tt)
 		ld	t0, 0(t0)
