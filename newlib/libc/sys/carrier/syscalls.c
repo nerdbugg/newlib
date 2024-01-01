@@ -1,36 +1,38 @@
 /* carrier sycall wrapper */
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/fcntl.h>
-#include <sys/times.h>
-#include <sys/errno.h>
-#include <sys/time.h>
-#include <stdio.h>
-#include <stdarg.h>
 #include <errno.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <sys/errno.h>
+#include <sys/fcntl.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <sys/types.h>
 
 extern int errno;
 
 /* Register name faking - works in collusion with the linker.  */
-register char * stack_ptr asm ("sp");
+register char *stack_ptr asm("sp");
 
 // note: used in trampoline code to issue hostcall
 // in hybrid mode, the real address is computed relative to ddc
 // in pure mode, we need runtime relocation to get real address
-// (dirty hack:specify a hard coded length of array to distinguish it from other data reloc)
+// (dirty hack:specify a hard coded length of array to distinguish it from other
+// data reloc)
 unsigned long local_cap_store = 0xe001000;
 
 // note: defined in tramps.S
 extern unsigned long c_out_1(unsigned long call_num, unsigned long arg1);
-extern unsigned long c_out_2(unsigned long call_num, unsigned long arg1, unsigned long arg2);
-extern unsigned long c_out_3(unsigned long call_num, unsigned long arg1, unsigned long arg2, 
-			     unsigned long arg3);
+extern unsigned long c_out_2(unsigned long call_num, unsigned long arg1,
+                             unsigned long arg2);
+extern unsigned long c_out_3(unsigned long call_num, unsigned long arg1,
+                             unsigned long arg2, unsigned long arg3);
 extern unsigned long ret_from_monitor();
 extern void copy_from_cap(void *dst, void *src_cap_location, int len);
 
-unsigned long __hostcall(unsigned long call_num, unsigned long arg1, unsigned long arg2, 
-				unsigned long arg3) {
+unsigned long __hostcall(unsigned long call_num, unsigned long arg1,
+                         unsigned long arg2, unsigned long arg3) {
   return c_out_3(call_num, arg1, arg2, arg3);
 }
 
@@ -63,7 +65,7 @@ enum HC_NUM {
   SEND = 509,
   RECV = 510,
   SOCKETPAIR = 512,
-  POLL= 513,
+  POLL = 513,
   SELECT = 514,
   RECVFROM = 519,
   WRITEV = 520,
@@ -90,7 +92,7 @@ enum HC_NUM {
 };
 
 long __syscall_ret(long r) {
-  if(r<0) {
+  if (r < 0) {
     errno = -r;
     return -1;
   }
@@ -99,15 +101,11 @@ long __syscall_ret(long r) {
   return r;
 }
 
-void _exit() {
-  __hostcall(EXIT, 0, 0, 0);
-}
+void _exit() { __hostcall(EXIT, 0, 0, 0); }
 
-int close(int file) {
-  return __hostcall(CLOSE, file, 0, 0);
-}
+int _close(int file) { return __hostcall(CLOSE, file, 0, 0); }
 
-char *__env[1] = { 0 };
+char *__env[1] = {0};
 char **environ = __env;
 
 int execve(char *name, char **argv, char **env) {
@@ -125,13 +123,9 @@ int fstat(int file, struct stat *st) {
   return 0;
 }
 
-int getpid(void) {
-  return 1;
-}
+int getpid(void) { return 1; }
 
-int isatty(int file) {
-  return 1;
-}
+int isatty(int file) { return 1; }
 
 int kill(int pid, int sig) {
   errno = EINVAL;
@@ -143,14 +137,15 @@ int link(char *old, char *new) {
   return -1;
 }
 
-int lseek(int file, int ptr, int dir) {
-  return 0;
+int _lseek(int fd, off_t pos, int whence) {
+  int res = __hostcall(LSEEK, fd, pos, whence);
+  return __syscall_ret(res);
 }
 
-int open(const char *name, int flags, ...) {
+int _open(const char *name, int flags, ...) {
   mode_t mode = 0;
 
-  if((flags & O_CREAT)) {
+  if ((flags & O_CREAT)) {
     va_list ap;
     va_start(ap, flags);
     mode = va_arg(ap, mode_t);
@@ -162,31 +157,33 @@ int open(const char *name, int flags, ...) {
   return __syscall_ret(fd);
 }
 
-int read(int file, char *ptr, int len) {
-  return __hostcall(READ, file, (unsigned long)ptr, len);
-  return 0;
+int _read(int file, char *ptr, int len) {
+  int res = __hostcall(READ, file, (unsigned long)ptr, len);
+  return __syscall_ret(res);
 }
 
-int write(int file, char *ptr, int len) {
-  return __hostcall(WRITE, file, (unsigned long)ptr, len);
+int _write(int file, char *ptr, int len) {
+  int res = __hostcall(WRITE, file, (unsigned long)ptr, len);
+  return __syscall_ret(res);
 }
 
-caddr_t sbrk(int incr) {
-  extern char _end;		/* Defined by the linker */
+void *_sbrk(int incr) {
+  extern char _end; /* Defined by the linker */
   static char *heap_end;
   char *prev_heap_end;
- 
+
   if (heap_end == 0) {
     heap_end = &_end;
   }
   prev_heap_end = heap_end;
   if (heap_end + incr > stack_ptr) {
-    write (1, "Heap and stack collision\n", 25);
+    _write(1, "Heap and stack collision\n", 25);
     _exit();
   }
 
   heap_end += incr;
-  return (caddr_t) prev_heap_end;
+
+  return (void *)prev_heap_end;
 }
 
 int stat(const char *__restrict __path, struct stat *__restrict __sbuf) {
@@ -194,17 +191,19 @@ int stat(const char *__restrict __path, struct stat *__restrict __sbuf) {
   return 0;
 }
 
-clock_t times(struct tms *buf) {
+clock_t _times(struct tms *buf) { return -1; }
+
+int _gettimeofday(struct timeval *ptimeval, void *ptimezone) {
+  errno = ENOSYS;
   return -1;
 }
 
 int unlink(char *name) {
   errno = ENOENT;
-  return -1; 
+  return -1;
 }
 
 int wait(int *status) {
   errno = ECHILD;
   return -1;
 }
-
