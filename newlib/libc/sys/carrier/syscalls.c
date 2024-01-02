@@ -159,11 +159,17 @@ int _open(const char *name, int flags, ...) {
 
 int _read(int file, char *ptr, int len) {
   int res = __hostcall(READ, file, (unsigned long)ptr, len);
+  if(file>2) {
+    printf("[debug/newlib] read returned %d\n", res);
+  }
   return __syscall_ret(res);
 }
 
 int _write(int file, char *ptr, int len) {
   int res = __hostcall(WRITE, file, (unsigned long)ptr, len);
+  if(file>2) {
+    printf("[debug/newlib] write returned %d\n", res);
+  }
   return __syscall_ret(res);
 }
 
@@ -186,9 +192,13 @@ void *_sbrk(int incr) {
   return (void *)prev_heap_end;
 }
 
+// NOTE: does stat not need to be namespace clean?
 int stat(const char *__restrict __path, struct stat *__restrict __sbuf) {
-  __sbuf->st_mode = S_IFCHR;
-  return 0;
+  printf("[newlib] called stat\n");
+  int res =  __hostcall(STAT, (unsigned long)__path, (unsigned long)__sbuf, 0);
+  printf("[newlib] statbuf->st_mode = %d\n", __sbuf->st_mode);
+
+  return res;
 }
 
 clock_t _times(struct tms *buf) { return -1; }
